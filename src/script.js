@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import * as CANNON from 'cannon-es'
+import { createGameObject } from './gameObject'
+
 
 /**
  * Debug
@@ -10,12 +12,31 @@ const gui = new GUI()
 const debugObject = {};
 
 debugObject.createSphere = () =>{
-    createSphere(0.5, 
-        {
-            x: (Math.random() -0.5) * 3,
-            y: 3,
-            z: (Math.random() -0.5) * 3,
-        });
+    const sphere = new createGameObject(world, scene);
+    sphere.createSphere(0.5, camera.position);
+    
+    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
+    console.log(A);
+    console.log(B);
+    const direction = B.sub(A).normalize();
+    console.log(direction)
+    direction.multiplyScalar(1000);
+    console.log(direction);
+
+
+    sphere._body.applyForce(
+        direction,
+        sphere._body.position,
+        )
+    // sphereBody.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphereBody.position);
+    objectsToUpdate.push(sphere);
+    // createSphere(0.5, 
+    //     {
+    //         x: (Math.random() -0.5) * 3,
+    //         y: 3,
+    //         z: (Math.random() -0.5) * 3,
+    //     });
 }
 
 
@@ -111,29 +132,29 @@ const sphereMaterial = new THREE.MeshStandardMaterial({
     envMap: environmentMapTexture,
 });
 
-const createSphere = (radius, position) =>{
-    // threejs sphere
-    const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+// const createSphere = (radius, position) =>{
+//     // threejs sphere
+//     const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
     
-    mesh.castShadow = true;
-    mesh.position.copy(position);
-    scene.add(mesh);
+//     mesh.castShadow = true;
+//     mesh.position.copy(position);
+//     scene.add(mesh);
 
-    //cannon sphere
-    const shape = new CANNON.Sphere(radius);
-    const body = new CANNON.Body({
-        mass: 1, 
-        position: new CANNON.Vec3(0, 0, 0),
-        shape, 
-        material: defaultMaterial,
-    });
+//     //cannon sphere
+//     const shape = new CANNON.Sphere(radius);
+//     const body = new CANNON.Body({
+//         mass: 1, 
+//         position: new CANNON.Vec3(0, 0, 0),
+//         shape, 
+//         material: defaultMaterial,
+//     });
     
-    body.position.copy(position);
-    body.addEventListener('collide', playHitSound)
-    world.addBody(body);
+//     body.position.copy(position);
+//     body.addEventListener('collide', playHitSound)
+//     world.addBody(body);
 
-    objectsToUpdate.push({mesh, body});
-}
+//     objectsToUpdate.push({mesh, body});
+// }
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const boxMaterial = new THREE.MeshStandardMaterial({
@@ -234,8 +255,8 @@ world.addBody(floorBody);
 
 
 
-createSphere(0.5,{x: 0, y: 2, z: 0});
-createBox(1, 1.5, 2, {x: 0, y: 3, z: 0});
+// createSphere(0.5,{x: 0, y: 2, z: 0});
+// createBox(1, 1.5, 2, {x: 0, y: 3, z: 0});
 
 
 /**
@@ -249,7 +270,7 @@ createBox(1, 1.5, 2, {x: 0, y: 3, z: 0});
  * Floor
  */
 const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(30, 30),
     new THREE.MeshStandardMaterial({
         color: '#777777',
         metalness: 0.3,
@@ -312,6 +333,7 @@ scene.add(camera)
 
 // Controls
 const controls = new OrbitControls(camera, canvas)
+controls.target = new THREE.Vector3(0, 3, 0);
 controls.enableDamping = true
 
 /**
@@ -325,6 +347,11 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+
+
+
+
+
 /**
  * Animate
  */
@@ -337,11 +364,13 @@ const tick = () =>
     const deltaTime = elapsedTime - prevTime;
     prevTime = elapsedTime;
 
-  
     for (let index = 0; index < objectsToUpdate.length; index++) {
-        const element = objectsToUpdate[index];
-        element.mesh.position.copy(element.body.position);
-        element.mesh.quaternion.copy(element.body.quaternion);
+        const gameObject = objectsToUpdate[index];
+        gameObject.update();
+
+        // const element = objectsToUpdate[index];
+        // element.mesh.position.copy(element.body.position);
+        // element.mesh.quaternion.copy(element.body.quaternion);
     }
 
     // Update physics world. if applying any forces, do it before this
