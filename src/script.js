@@ -12,45 +12,63 @@ const gui = new GUI()
 const debugObject = {};
 
 debugObject.createSphere = () =>{
+    fireSphere();
+}
+
+debugObject.createBox = () => {
+    fireBox();
+    // createBox(
+    //     Math.random(),
+    //     Math.random(), 
+    //     Math.random(),
+    //     {
+    //         x: (Math.random() - 0.5) * 3,
+    //         y: 3,
+    //         z: (Math.random() - 0.5) * 3,
+    //     }
+    // )
+}
+
+function fireSphere(){
     const sphere = new createGameObject(world, scene);
     sphere.createSphere(0.5, camera.position);
     
     const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
     const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
-    console.log(A);
-    console.log(B);
     const direction = B.sub(A).normalize();
-    console.log(direction)
     direction.multiplyScalar(1000);
-    console.log(direction);
-
 
     sphere._body.applyForce(
         direction,
         sphere._body.position,
         )
-    // sphereBody.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphereBody.position);
+
     objectsToUpdate.push(sphere);
-    // createSphere(0.5, 
-    //     {
-    //         x: (Math.random() -0.5) * 3,
-    //         y: 3,
-    //         z: (Math.random() -0.5) * 3,
-    //     });
 }
 
 
-debugObject.createBox = () => {
-    createBox(
-        Math.random(),
-        Math.random(), 
-        Math.random(),
-        {
-            x: (Math.random() - 0.5) * 3,
-            y: 3,
-            z: (Math.random() - 0.5) * 3,
-        }
+function fireBox(){
+    
+    const box = new createGameObject(world, scene);
+    box.createBox(0.5, 0.5, 1.5, new THREE.Vector3(0, 3, 0));
+    box.setQuaternion(camera.quaternion);
+    
+    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
+    const direction = B.sub(A).normalize();
+    const velocity =  direction.multiplyScalar(1500);
+
+    box._body.applyForce(
+        velocity,
+        new CANNON.Vec3(0, 0.002, 0)
     )
+
+    // box._body.applyForce(
+    //     {x:0, y:400, z: 0},
+    //     new CANNON.Vec3(1, 0, -1)
+    // )
+    
+    objectsToUpdate.push(box);
 }
 
 debugObject.reset = () =>{
@@ -125,27 +143,30 @@ const playHitSound = (collision) =>{
  * Utils
  */
 const objectsToUpdate = [];
-const sphereGeometry = new THREE.SphereGeometry(0.5, 20, 20); 
-const sphereMaterial = new THREE.MeshStandardMaterial({
-    metalness: 0.3, 
-    roughness: 0.4, 
-    envMap: environmentMapTexture,
-});
 
-// const createSphere = (radius, position) =>{
-//     // threejs sphere
-//     const mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    
+
+// const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+// const boxMaterial = new THREE.MeshStandardMaterial({
+//     metalness: 0.3,
+//     roughness: 0.4,
+//     envMap: environmentMapTexture,
+//     envMapIntensity: 0.5,
+// })
+
+// const createBox = (width, height, depth, position) =>{
+//     // Mesh
+//     const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
+//     mesh.scale.set(width, height, depth);
 //     mesh.castShadow = true;
 //     mesh.position.copy(position);
 //     scene.add(mesh);
 
-//     //cannon sphere
-//     const shape = new CANNON.Sphere(radius);
+//     // Body
+//     const shape = new CANNON.Box(new CANNON.Vec3(width*0.5, height*0.5, depth*0.5));
 //     const body = new CANNON.Body({
-//         mass: 1, 
-//         position: new CANNON.Vec3(0, 0, 0),
-//         shape, 
+//         mass: 1,
+//         position: new CANNON.Vec3(0, 3, 0),
+//         shape: shape,
 //         material: defaultMaterial,
 //     });
     
@@ -155,38 +176,6 @@ const sphereMaterial = new THREE.MeshStandardMaterial({
 
 //     objectsToUpdate.push({mesh, body});
 // }
-
-const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-const boxMaterial = new THREE.MeshStandardMaterial({
-    metalness: 0.3,
-    roughness: 0.4,
-    envMap: environmentMapTexture,
-    envMapIntensity: 0.5,
-})
-
-const createBox = (width, height, depth, position) =>{
-    // Mesh
-    const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
-    mesh.scale.set(width, height, depth);
-    mesh.castShadow = true;
-    mesh.position.copy(position);
-    scene.add(mesh);
-
-    // Body
-    const shape = new CANNON.Box(new CANNON.Vec3(width*0.5, height*0.5, depth*0.5));
-    const body = new CANNON.Body({
-        mass: 1,
-        position: new CANNON.Vec3(0, 3, 0),
-        shape: shape,
-        material: defaultMaterial,
-    });
-    
-    body.position.copy(position);
-    body.addEventListener('collide', playHitSound)
-    world.addBody(body);
-
-    objectsToUpdate.push({mesh, body});
-}
 
 
 
@@ -323,11 +312,20 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+// TODO: This is on mouse up for now because the orbit controls require mouse down to move/aim
+window.addEventListener('mouseup', (e) =>{
+    if(e.button == 0 ){
+        fireBox();
+        // fireSphere();
+    }
+})
+
 /**
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+const cameraFar = 100;
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, cameraFar)
 camera.position.set(- 3, 3, 3)
 scene.add(camera)
 
@@ -368,10 +366,20 @@ const tick = () =>
         const gameObject = objectsToUpdate[index];
         gameObject.update();
 
+
+        // remove objects when too far from the camera
+        if(gameObject._mesh.position.distanceTo(camera.position) > cameraFar){
+            gameObject.destroy();
+            objectsToUpdate.splice(index, 1);
+            index--;
+        }
+
         // const element = objectsToUpdate[index];
         // element.mesh.position.copy(element.body.position);
         // element.mesh.quaternion.copy(element.body.quaternion);
     }
+
+
 
     // Update physics world. if applying any forces, do it before this
     // fixed time step, how much time passed since the last step, how many iterations can be applied to catch up with potential delay
