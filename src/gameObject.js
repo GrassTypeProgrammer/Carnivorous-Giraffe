@@ -6,6 +6,110 @@ import * as CANNON from 'cannon-es'
 
 // TODO have a base 'class' that these can inherit from, so that you have base game object, then sphere and cube game objects, 
 //      rather than having them as one factory function 
+
+
+
+
+export function gameObject(world, scene){
+    let _name = 'gameObject';
+    let _mesh;
+    let _body;
+
+    const print = () => {
+        console.log(_name);    
+    }
+
+    const update = () => {
+        if(_mesh && _body){
+            _mesh.position.copy(_body.position);
+            _mesh.quaternion.copy(_body.quaternion);
+        }
+    }
+
+    const destroy = () => {
+        // TODO: Remove all listeners
+
+        // Remove mesh
+        scene.remove(_mesh);
+
+        // Remove Body
+        world.removeBody(_body);
+    }
+
+    return {
+        print,
+        update,
+        destroy,
+
+        get Name() { return _name},
+        set Name(name){ _name = name},
+        get Mesh() { return _mesh},
+        set Mesh(mesh){ _mesh = mesh},
+        get Body() { return _body},
+        set Body(body){ _body = body},
+    };
+    
+}
+
+
+
+export function sphereObject(world, scene, properties){
+    const _gameObject = gameObject(world, scene);
+    _gameObject.Name = 'sphereObject';
+
+    const cubeTextureLoader = new THREE.CubeTextureLoader()
+    const environmentMapTexture = cubeTextureLoader.load([
+        '/textures/environmentMaps/0/px.png',
+        '/textures/environmentMaps/0/nx.png',
+        '/textures/environmentMaps/0/py.png',
+        '/textures/environmentMaps/0/ny.png',
+        '/textures/environmentMaps/0/pz.png',
+        '/textures/environmentMaps/0/nz.png'
+    ])
+    
+
+    const init = () => {
+        // Make material/geomtery
+        /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
+         *      Alternatively, could this be static and would that be more performant?
+        */
+        const sphereGeometry = new THREE.SphereGeometry(0.5, 20, 20); 
+        const sphereMaterial = new THREE.MeshStandardMaterial({
+            metalness: 0.3, 
+            roughness: 0.4, 
+            envMap: environmentMapTexture,
+        });
+
+
+        // Create Mesh
+        _gameObject.Mesh = new THREE.Mesh(sphereGeometry, properties.material? properties.material : sphereMaterial);
+        _gameObject.Mesh.castShadow = true;
+        _gameObject.Mesh.position.copy(properties.position);
+        scene.add(_gameObject.Mesh);
+
+        // Create Body
+        const shape = new CANNON.Sphere(properties.radius);
+        _gameObject.Body = new CANNON.Body({
+            mass: 1, 
+            // position: new CANNON.Vec3(0, 0, 0),
+            shape, 
+            // material: defaultMaterial,
+        });
+        
+        _gameObject.Body.position.copy(properties.position);
+        world.addBody(_gameObject.Body);
+    }
+
+    
+
+
+    init();
+
+    return Object.assign({}, _gameObject, {
+    });
+}
+
+
 export function createGameObject(world, scene){
     let _mesh;
     let _body;
@@ -102,30 +206,6 @@ export function createGameObject(world, scene){
          //  this._body.addEventListener('collide', playHitSound)
           world.addBody(this._body);
       
-    }
-
-    // TODO: add an object with all the options, such as cast shadows, etc
-    function createSphere(radius, position, material = undefined){
-          // threejs sphere
-        this._mesh = new THREE.Mesh(sphereGeometry, material? material : sphereMaterial);
-        
-        this._mesh.castShadow = true;
-        this._mesh.position.copy(position);
-        scene.add(this._mesh);
-
-        //cannon sphere
-        const shape = new CANNON.Sphere(radius);
-        this._body = new CANNON.Body({
-            mass: 1, 
-            position: new CANNON.Vec3(0, 0, 0),
-            shape, 
-            // material: defaultMaterial,
-        });
-        
-        this._body.position.copy(position);
-        world.addBody(this._body);
-
-        // objectsToUpdate.push({mesh, body});
     }
 
     function destroy(){

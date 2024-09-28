@@ -2,7 +2,10 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import * as CANNON from 'cannon-es'
-import { createGameObject } from './gameObject'
+import { createGameObject, sphereObject } from './gameObject'
+
+
+
 
 
 /**
@@ -30,17 +33,21 @@ debugObject.createBox = () => {
 }
 
 function fireSphere(){
-    const sphere = new createGameObject(world, scene);
-    sphere.createSphere(0.5, camera.position);
-    
+    const sphereProperties = {
+        position: camera.position,
+        radius: 0.5,
+    }
+    const sphere = new sphereObject(world, scene, sphereProperties);
+
+
     const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
     const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
     const direction = B.sub(A).normalize();
     direction.multiplyScalar(1000);
 
-    sphere._body.applyForce(
+    sphere.Body.applyForce(
         direction,
-        sphere._body.position,
+        sphere.Body.position,
         )
 
     objectsToUpdate.push(sphere);
@@ -315,8 +322,8 @@ window.addEventListener('resize', () =>
 // TODO: This is on mouse up for now because the orbit controls require mouse down to move/aim
 window.addEventListener('mouseup', (e) =>{
     if(e.button == 0 ){
-        fireBox();
-        // fireSphere();
+        // fireBox();
+        fireSphere();
     }
 })
 
@@ -368,7 +375,7 @@ const tick = () =>
 
 
         // remove objects when too far from the camera
-        if(gameObject._mesh.position.distanceTo(camera.position) > cameraFar){
+        if(gameObject.Mesh && gameObject.Mesh.position.distanceTo(camera.position) > cameraFar){
             gameObject.destroy();
             objectsToUpdate.splice(index, 1);
             index--;
