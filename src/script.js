@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import * as CANNON from 'cannon-es'
-import { createGameObject, sphereObject } from './gameObject'
+import {  boxObject, sphereObject } from './gameObject'
 
 
 
@@ -14,23 +14,23 @@ import { createGameObject, sphereObject } from './gameObject'
 const gui = new GUI()
 const debugObject = {};
 
-debugObject.createSphere = () =>{
-    fireSphere();
-}
+// debugObject.createSphere = () =>{
+//     fireSphere();
+// }
 
-debugObject.createBox = () => {
-    fireBox();
-    // createBox(
-    //     Math.random(),
-    //     Math.random(), 
-    //     Math.random(),
-    //     {
-    //         x: (Math.random() - 0.5) * 3,
-    //         y: 3,
-    //         z: (Math.random() - 0.5) * 3,
-    //     }
-    // )
-}
+// debugObject.createBox = () => {
+//     fireBox();
+//     // createBox(
+//     //     Math.random(),
+//     //     Math.random(), 
+//     //     Math.random(),
+//     //     {
+//     //         x: (Math.random() - 0.5) * 3,
+//     //         y: 3,
+//     //         z: (Math.random() - 0.5) * 3,
+//     //     }
+//     // )
+// }
 
 function fireSphere(){
     const sphereProperties = {
@@ -38,7 +38,6 @@ function fireSphere(){
         radius: 0.5,
     }
     const sphere = new sphereObject(world, scene, sphereProperties);
-
 
     const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
     const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
@@ -56,25 +55,26 @@ function fireSphere(){
 
 function fireBox(){
     
-    const box = new createGameObject(world, scene);
-    box.createBox(0.5, 0.5, 1.5, new THREE.Vector3(0, 3, 0));
-    box.setQuaternion(camera.quaternion);
+    const boxProperties = {
+        width: 0.5, 
+        depth: 1.5,
+        height: 0.5,
+        position: new THREE.Vector3(0, 3, 0),
+        quaternion: camera.quaternion,
+    }
+    const box = new boxObject(world, scene, boxProperties);
     
     const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
     const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
     const direction = B.sub(A).normalize();
     const velocity =  direction.multiplyScalar(1500);
 
-    box._body.applyForce(
+    // TODO: Scale the 0.002 down as the 1500 (above) goes up
+    box.Body.applyForce(
         velocity,
         new CANNON.Vec3(0, 0.002, 0)
     )
 
-    // box._body.applyForce(
-    //     {x:0, y:400, z: 0},
-    //     new CANNON.Vec3(1, 0, -1)
-    // )
-    
     objectsToUpdate.push(box);
 }
 
@@ -322,8 +322,8 @@ window.addEventListener('resize', () =>
 // TODO: This is on mouse up for now because the orbit controls require mouse down to move/aim
 window.addEventListener('mouseup', (e) =>{
     if(e.button == 0 ){
-        // fireBox();
-        fireSphere();
+        fireBox();
+        // fireSphere();
     }
 })
 

@@ -57,8 +57,8 @@ export function sphereObject(world, scene, properties){
     const _gameObject = gameObject(world, scene);
     _gameObject.Name = 'sphereObject';
 
-    const cubeTextureLoader = new THREE.CubeTextureLoader()
-    const environmentMapTexture = cubeTextureLoader.load([
+    const txtureLoader = new THREE.CubeTextureLoader()
+    const environmentMapTexture = textureLoader.load([
         '/textures/environmentMaps/0/px.png',
         '/textures/environmentMaps/0/nx.png',
         '/textures/environmentMaps/0/py.png',
@@ -91,17 +91,12 @@ export function sphereObject(world, scene, properties){
         const shape = new CANNON.Sphere(properties.radius);
         _gameObject.Body = new CANNON.Body({
             mass: 1, 
-            // position: new CANNON.Vec3(0, 0, 0),
             shape, 
-            // material: defaultMaterial,
         });
         
         _gameObject.Body.position.copy(properties.position);
         world.addBody(_gameObject.Body);
     }
-
-    
-
 
     init();
 
@@ -110,7 +105,79 @@ export function sphereObject(world, scene, properties){
 }
 
 
-export function createGameObject(world, scene){
+
+
+
+
+
+
+
+
+
+export function boxObject(world, scene, properties){
+    const _gameObject = gameObject(world, scene);
+    _gameObject.Name = 'cubeObject';
+
+    const cubeTextureLoader = new THREE.CubeTextureLoader()
+    const environmentMapTexture = cubeTextureLoader.load([
+        '/textures/environmentMaps/0/px.png',
+        '/textures/environmentMaps/0/nx.png',
+        '/textures/environmentMaps/0/py.png',
+        '/textures/environmentMaps/0/ny.png',
+        '/textures/environmentMaps/0/pz.png',
+        '/textures/environmentMaps/0/nz.png'
+    ])
+    
+
+    const init = () => {
+        // Make material/geomtery
+        /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
+         *      Alternatively, could this be static and would that be more performant?
+        */
+        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const boxMaterial = new THREE.MeshStandardMaterial({
+            metalness: 0.3,
+            roughness: 0.4,
+            envMap: environmentMapTexture,
+            envMapIntensity: 0.5,
+        })
+
+        // Mesh 
+        _gameObject.Mesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        _gameObject.Mesh.scale.set(properties.width, properties.height, properties.depth);
+        _gameObject.Mesh.castShadow = true;
+        _gameObject.Mesh.position.copy(properties.position);
+        scene.add(_gameObject.Mesh);
+        
+        
+     
+         // Body
+         const shape = new CANNON.Box(new CANNON.Vec3(properties.width * 0.5, properties.height * 0.5, properties.depth * 0.5));
+         _gameObject.Body = new CANNON.Body({
+             mass: 1,
+             position: properties.position,
+             shape: shape,
+             quaternion: properties.quaternion,
+            //  material: defaultMaterial,
+         });
+        //  this._body.addEventListener('collide', playHitSound)
+         world.addBody(_gameObject.Body);
+     
+    }
+
+    init();
+
+    return Object.assign({}, _gameObject, {
+    });
+}
+
+
+
+
+
+
+// TODO: Delete this
+export function createGameObjectDeprecated(world, scene){
     let _mesh;
     let _body;
     // const textureLoader = new THREE.TextureLoader()
@@ -125,12 +192,7 @@ export function createGameObject(world, scene){
         '/textures/environmentMaps/0/nz.png'
     ])
 
-    const sphereGeometry = new THREE.SphereGeometry(0.5, 20, 20); 
-    const sphereMaterial = new THREE.MeshStandardMaterial({
-        metalness: 0.3, 
-        roughness: 0.4, 
-        envMap: environmentMapTexture,
-    });
+    
 
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     const boxMaterial = new THREE.MeshStandardMaterial({
@@ -141,31 +203,7 @@ export function createGameObject(world, scene){
     })
     
 
-    function createBox(width, height, depth, position){
-         // Mesh
-        this._mesh = new THREE.Mesh(boxGeometry, boxMaterial);
-        this._mesh.scale.set(width, height, depth);
-        this._mesh.castShadow = true;
-        this._mesh.position.copy(position);
-        scene.add(this._mesh);
-        
-        this._mesh.position.copy(position);
-        scene.add(this._mesh);
-     
-         // Body
-         const shape = new CANNON.Box(new CANNON.Vec3(width * 0.5, height * 0.5, depth * 0.5));
-         this._body = new CANNON.Body({
-             mass: 1,
-             position: new CANNON.Vec3(0, 3, 0),
-             shape: shape,
-            //  material: defaultMaterial,
-         });
-         this._body.position.copy(position);
-        //  this._body.addEventListener('collide', playHitSound)
-         world.addBody(this._body);
-     
-    }
-  
+   
     function createSpear(){
          // Mesh
          //  this._mesh = new THREE.Mesh(boxGeometry, boxMaterial);
@@ -233,8 +271,6 @@ export function createGameObject(world, scene){
         _mesh, 
         _body, 
         update,
-        createSphere,
-        createBox,
         destroy,
         setQuaternion,
     }
