@@ -36,6 +36,12 @@ export function gameObject(world, scene){
         world.removeBody(_body);
     }
 
+    const init = () => {
+        console.log('init');
+    }
+
+    // TODO: Add an init function here to be inherited/used.
+
     return {
         print,
         update,
@@ -51,6 +57,65 @@ export function gameObject(world, scene){
     
 }
 
+
+export function customGameObject(world, scene, properties){
+    const _gameObject = gameObject(world, scene);
+    _gameObject.Name = properties.Name ?? 'customObject';
+
+
+    const init = () => {
+        // Mesh
+        if(properties.mesh != undefined){
+            _gameObject.Mesh = properties.mesh;
+        }
+        else{
+            // If no mesh provided, fallback on sphere mesh.
+            // Make material/geomtery
+            const geometry = properties.geometry ?? new THREE.SphereGeometry(0.5, 20, 20); 
+            const meshMaterial = properties.meshMaterial ?? new THREE.MeshStandardMaterial({
+                metalness: 0.3, 
+                roughness: 0.4, 
+                // TODO: Set color to bright pink so it's clear this shouldn't be here.
+            });
+    
+            // Create Mesh
+            _gameObject.Mesh = new THREE.Mesh(geometry, meshMaterial);
+            _gameObject.Mesh.castShadow = properties.castShadow ?? false;
+            _gameObject.Mesh.position.copy(properties.position ?? new THREE.Vector3(0, 0, 0));
+
+            console.warn('No mesh provided for customGameObject');
+        }
+
+        scene.add(_gameObject.Mesh);
+
+        // Body
+        if(properties.body != undefined){
+            const shape = properties.shape ?? new CANNON.Sphere(properties.radius);
+            _gameObject.Body = new CANNON.Body({
+                shape, 
+                mass: properties.mass ?? 1, 
+                position: properties.position,
+                quaternion: properties.quaternion,
+                material: properties.physicsMaterial,
+            });
+        }
+        else{
+            // If no body is provided, fall back on sphere
+
+            console.warn('No body provided for customGameObject');
+        }
+        
+        world.addBody(_gameObject.Body);
+    }
+
+    init();
+
+    return Object.assign({}, _gameObject, {
+
+    });
+}
+
+
 /**
  * 
  * @param {'','geometry, meshMaterial, shape, physicsMaterial, radius, castShadow, position, quaternion, mass'} properties 
@@ -63,9 +128,6 @@ export function sphereObject(world, scene, properties){
 
     const init = () => {
         // Make material/geomtery
-        /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
-         *      Alternatively, could this be static and would that be more performant?
-        */
         const sphereGeometry = properties.geometry ?? new THREE.SphereGeometry(0.5, 20, 20); 
         const sphereMaterial = properties.meshMaterial ?? new THREE.MeshStandardMaterial({
             metalness: 0.3, 
@@ -95,6 +157,7 @@ export function sphereObject(world, scene, properties){
     init();
 
     return Object.assign({}, _gameObject, {
+
     });
 }
 
@@ -119,9 +182,6 @@ export function boxObject(world, scene, properties){
 
     const init = () => {
         // Make material/geomtery
-        /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
-         *      Alternatively, could this be static and would that be more performant?
-        */
         const boxGeometry = properties.geometry ?? new THREE.BoxGeometry(
             properties.width ?? 1,
             properties.height ?? 1,
@@ -131,6 +191,7 @@ export function boxObject(world, scene, properties){
             metalness: 0.3,
             roughness: 0.4,
         });
+        console.log('init override')
 
         // Mesh 
         _gameObject.Mesh = new THREE.Mesh(boxGeometry, boxMaterial);
