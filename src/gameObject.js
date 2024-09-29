@@ -51,50 +51,44 @@ export function gameObject(world, scene){
     
 }
 
-
+/**
+ * 
+ * @param {'','geometry, meshMaterial, shape, physicsMaterial, radius, castShadow, position, quaternion, mass'} properties 
+ * @returns 
+ */
 
 export function sphereObject(world, scene, properties){
     const _gameObject = gameObject(world, scene);
     _gameObject.Name = 'sphereObject';
-
-    const txtureLoader = new THREE.CubeTextureLoader()
-    const environmentMapTexture = textureLoader.load([
-        '/textures/environmentMaps/0/px.png',
-        '/textures/environmentMaps/0/nx.png',
-        '/textures/environmentMaps/0/py.png',
-        '/textures/environmentMaps/0/ny.png',
-        '/textures/environmentMaps/0/pz.png',
-        '/textures/environmentMaps/0/nz.png'
-    ])
-    
 
     const init = () => {
         // Make material/geomtery
         /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
          *      Alternatively, could this be static and would that be more performant?
         */
-        const sphereGeometry = new THREE.SphereGeometry(0.5, 20, 20); 
-        const sphereMaterial = new THREE.MeshStandardMaterial({
+        const sphereGeometry = properties.geometry ?? new THREE.SphereGeometry(0.5, 20, 20); 
+        const sphereMaterial = properties.meshMaterial ?? new THREE.MeshStandardMaterial({
             metalness: 0.3, 
             roughness: 0.4, 
-            envMap: environmentMapTexture,
         });
 
 
         // Create Mesh
-        _gameObject.Mesh = new THREE.Mesh(sphereGeometry, properties.material? properties.material : sphereMaterial);
-        _gameObject.Mesh.castShadow = true;
-        _gameObject.Mesh.position.copy(properties.position);
+        _gameObject.Mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        _gameObject.Mesh.castShadow = properties.castShadow ?? false;
+        _gameObject.Mesh.position.copy(properties.position ?? new THREE.Vector3(0, 0, 0));
         scene.add(_gameObject.Mesh);
 
         // Create Body
-        const shape = new CANNON.Sphere(properties.radius);
+        const shape = properties.shape ?? new CANNON.Sphere(properties.radius);
         _gameObject.Body = new CANNON.Body({
-            mass: 1, 
             shape, 
+            mass: properties.mass ?? 1, 
+            position: properties.position,
+            quaternion: properties.quaternion,
+            material: properties.physicsMaterial,
         });
         
-        _gameObject.Body.position.copy(properties.position);
         world.addBody(_gameObject.Body);
     }
 
@@ -112,57 +106,54 @@ export function sphereObject(world, scene, properties){
 
 
 
-
+/**
+ * 
+ * @param {'','geometry, meshMaterial, shape, physicsMaterial, width, height, depth, castShadow, position, quaternion, mass'} properties 
+ * @returns 
+ */
 
 export function boxObject(world, scene, properties){
     const _gameObject = gameObject(world, scene);
     _gameObject.Name = 'cubeObject';
 
-    const cubeTextureLoader = new THREE.CubeTextureLoader()
-    const environmentMapTexture = cubeTextureLoader.load([
-        '/textures/environmentMaps/0/px.png',
-        '/textures/environmentMaps/0/nx.png',
-        '/textures/environmentMaps/0/py.png',
-        '/textures/environmentMaps/0/ny.png',
-        '/textures/environmentMaps/0/pz.png',
-        '/textures/environmentMaps/0/nz.png'
-    ])
-    
 
     const init = () => {
         // Make material/geomtery
         /** TODO: have geometry and material as optional paramaters, in case you want to make a lot of them. 
          *      Alternatively, could this be static and would that be more performant?
         */
-        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const boxMaterial = new THREE.MeshStandardMaterial({
+        const boxGeometry = properties.geometry ?? new THREE.BoxGeometry(
+            properties.width ?? 1,
+            properties.height ?? 1,
+            properties.depth ?? 1
+        );
+        const boxMaterial = properties. meshMaterial ?? new THREE.MeshStandardMaterial({
             metalness: 0.3,
             roughness: 0.4,
-            envMap: environmentMapTexture,
-            envMapIntensity: 0.5,
-        })
+        });
 
         // Mesh 
         _gameObject.Mesh = new THREE.Mesh(boxGeometry, boxMaterial);
-        _gameObject.Mesh.scale.set(properties.width, properties.height, properties.depth);
-        _gameObject.Mesh.castShadow = true;
-        _gameObject.Mesh.position.copy(properties.position);
+        _gameObject.Mesh.castShadow = properties.castShadow ?? false;
+        _gameObject.Mesh.position.copy(properties.position ?? new THREE.Vector3(0, 0, 0));
         scene.add(_gameObject.Mesh);
         
-        
-     
          // Body
-         const shape = new CANNON.Box(new CANNON.Vec3(properties.width * 0.5, properties.height * 0.5, properties.depth * 0.5));
-         _gameObject.Body = new CANNON.Body({
-             mass: 1,
-             position: properties.position,
-             shape: shape,
-             quaternion: properties.quaternion,
-            //  material: defaultMaterial,
-         });
+        const shape = new CANNON.Box(new CANNON.Vec3(
+            (properties.width ?? 1) * 0.5, 
+            (properties.height ?? 1) * 0.5, 
+            (properties.depth ?? 1) * 0.5
+        ));
+
+        _gameObject.Body = new CANNON.Body({
+            shape, 
+            mass: properties.mass ?? 1, 
+            position: properties.position,
+            quaternion: properties.quaternion,
+            material: properties.physicsMaterial,
+        });
         //  this._body.addEventListener('collide', playHitSound)
          world.addBody(_gameObject.Body);
-     
     }
 
     init();

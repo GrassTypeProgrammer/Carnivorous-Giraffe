@@ -61,7 +61,7 @@ function fireBox(){
         height: 0.5,
         position: new THREE.Vector3(0, 3, 0),
         quaternion: camera.quaternion,
-    }
+    };
     const box = new boxObject(world, scene, boxProperties);
     
     const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
@@ -69,10 +69,10 @@ function fireBox(){
     const direction = B.sub(A).normalize();
     const velocity =  direction.multiplyScalar(1500);
 
-    // TODO: Scale the 0.002 down as the 1500 (above) goes up
+    // TODO: Scale the 0.004 down as the 1500 (above) goes up
     box.Body.applyForce(
         velocity,
-        new CANNON.Vec3(0, 0.002, 0)
+        new CANNON.Vec3(0, 0.004, 0)
     )
 
     objectsToUpdate.push(box);
@@ -95,8 +95,8 @@ debugObject.reset = () =>{
 }
 
 
-gui.add(debugObject, 'createSphere');
-gui.add(debugObject, 'createBox');
+// gui.add(debugObject, 'createSphere');
+// gui.add(debugObject, 'createBox');
 gui.add(debugObject, 'reset');
 /**
  * Base
