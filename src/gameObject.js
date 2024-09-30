@@ -90,6 +90,10 @@ export function customGameObject(world, scene, properties){
 
         // Body
         if(properties.body != undefined){
+            _gameObject.Body = properties.body;
+        }
+        else{
+            // If no body is provided, fall back on sphere
             const shape = properties.shape ?? new CANNON.Sphere(properties.radius);
             _gameObject.Body = new CANNON.Body({
                 shape, 
@@ -98,9 +102,6 @@ export function customGameObject(world, scene, properties){
                 quaternion: properties.quaternion,
                 material: properties.physicsMaterial,
             });
-        }
-        else{
-            // If no body is provided, fall back on sphere
 
             console.warn('No body provided for customGameObject');
         }

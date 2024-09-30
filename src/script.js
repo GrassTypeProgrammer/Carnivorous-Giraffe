@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 import * as CANNON from 'cannon-es'
 import {  boxObject, sphereObject } from './gameObject'
+import { createGiraffe } from './giraffe'
 
 
 
@@ -59,7 +60,7 @@ function fireBox(){
         width: 0.5, 
         depth: 1.5,
         height: 0.5,
-        position: new THREE.Vector3(0, 3, 0),
+        position: camera.position,
         quaternion: camera.quaternion,
     };
     const box = new boxObject(world, scene, boxProperties);
@@ -152,40 +153,6 @@ const playHitSound = (collision) =>{
 const objectsToUpdate = [];
 
 
-// const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const boxMaterial = new THREE.MeshStandardMaterial({
-//     metalness: 0.3,
-//     roughness: 0.4,
-//     envMap: environmentMapTexture,
-//     envMapIntensity: 0.5,
-// })
-
-// const createBox = (width, height, depth, position) =>{
-//     // Mesh
-//     const mesh = new THREE.Mesh(boxGeometry, boxMaterial);
-//     mesh.scale.set(width, height, depth);
-//     mesh.castShadow = true;
-//     mesh.position.copy(position);
-//     scene.add(mesh);
-
-//     // Body
-//     const shape = new CANNON.Box(new CANNON.Vec3(width*0.5, height*0.5, depth*0.5));
-//     const body = new CANNON.Body({
-//         mass: 1,
-//         position: new CANNON.Vec3(0, 3, 0),
-//         shape: shape,
-//         material: defaultMaterial,
-//     });
-    
-//     body.position.copy(position);
-//     body.addEventListener('collide', playHitSound)
-//     world.addBody(body);
-
-//     objectsToUpdate.push({mesh, body});
-// }
-
-
-
 
 /**
  * Physics
@@ -258,6 +225,14 @@ world.addBody(floorBody);
 /**
  * Physics end
  */
+
+/**
+ * Objects
+ */
+
+
+const giraffe = new createGiraffe(world, scene);
+
 
 
 
