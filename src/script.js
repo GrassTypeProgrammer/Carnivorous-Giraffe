@@ -4,8 +4,7 @@ import GUI from 'lil-gui'
 import * as CANNON from 'cannon-es'
 import {  boxObject, sphereObject } from './gameObject'
 import { createGiraffe } from './giraffe'
-
-
+import CannonDebugger from 'cannon-es-debugger'
 
 
 
@@ -232,7 +231,7 @@ world.addBody(floorBody);
 
 
 const giraffe = new createGiraffe(world, scene);
-
+objectsToUpdate.push(giraffe)
 
 
 
@@ -328,8 +327,13 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 
+/**
+ * Debugger
+ */
 
-
+// const cannonDebugger = new CannonDebugger(scene, world, {
+//     // options...
+//   });
 
 
 /**
@@ -343,6 +347,9 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - prevTime;
     prevTime = elapsedTime;
+
+    
+    // cannonDebugger.update();
 
     for (let index = 0; index < objectsToUpdate.length; index++) {
         const gameObject = objectsToUpdate[index];

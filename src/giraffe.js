@@ -17,7 +17,22 @@ export function createGiraffe(world, scene){
      * 
      */
 
+    const bodySize = {x:2.5, y:2.5, z:5};
+    const bodyPosition = {x:0, y:4, z:0};
 
+    const neckSize = {x:1, y:5, z:1};
+    const neckPosition = {x:0, y:7.5, z:2};
+
+    const headSize = {x:1.5, y:1.5, z:2};
+    const headPosition = {x:0, y:10, z:2.5};
+
+    const legSize = {x:1, y:3, z:1};
+    const legPositions = [
+        {x:0.75, y:1.25, z:2},
+        {x:-0.75, y:1.25, z:2},
+        {x:0.75, y:1.25, z:-2},
+        {x:-0.75, y:1.25, z:-2},
+    ];
 
 
     const createMesh = () => {
@@ -26,28 +41,28 @@ export function createGiraffe(world, scene){
         
          /** Body */
         const body = new THREE.Mesh(
-            new THREE.BoxGeometry(2.5, 2.5, 5),
+            new THREE.BoxGeometry(bodySize.x, bodySize.y, bodySize.z),
             meshMaterial,
         );
         mesh.add(body);
-        body.position.set(0, 3, 0);
+        body.position.set(bodyPosition.x, bodyPosition.y, bodyPosition.z);
 
      
         /** Neck */
         const neckMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 4, 1),
+            new THREE.BoxGeometry(neckSize.x, neckSize.y, neckSize.z),
             meshMaterial,
         );
         mesh.add(neckMesh);
-        neckMesh.position.set(0, 6, 2);
+        neckMesh.position.set(neckPosition.x, neckPosition.y, neckPosition.z);
      
         /** Head */
         const headMesh = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 1.5, 2),
+            new THREE.BoxGeometry(headSize.x, headSize.y, headSize.z),
             meshMaterial,
         );
         mesh.add(headMesh);
-        headMesh.position.set(0, 8, 2.5);
+        headMesh.position.set(headPosition.x, headPosition.y, headPosition.z);
      
 
         /** Legs */
@@ -55,40 +70,40 @@ export function createGiraffe(world, scene){
 
         for (let index = 0; index < 4; index++) {
             legs.push(new THREE.Mesh(
-                new THREE.BoxGeometry(1, 3, 1),
+                new THREE.BoxGeometry(legSize.x, legSize.y, legSize.z),
                 meshMaterial,
             ));
 
             mesh.add(legs[index]);
         }
         
-        legs[0].position.set(0.75, 0.25, 2);
-        legs[1].position.set(-0.75, 0.25, 2);
-        legs[2].position.set(0.75, 0.25, -2);
-        legs[3].position.set(-0.75, 0.25, -2);
+        legs[0].position.set(legPositions[0].x, legPositions[0].y, legPositions[0].z);
+        legs[1].position.set(legPositions[1].x, legPositions[1].y, legPositions[1].z);
+        legs[2].position.set(legPositions[2].x, legPositions[2].y, legPositions[2].z);
+        legs[3].position.set(legPositions[3].x, legPositions[3].y, legPositions[3].z);
 
         return mesh;
     }
 
     const createBody = () => {
         const body = new CANNON.Body({
-            mass: 100,
+            mass: 0,
         });
 
         /** Body */
         // Physics Body
-        const bodyShape =  new CANNON.Box(new CANNON.Vec3(2.5, 2.5, 5));
-        body.addShape(bodyShape, new CANNON.Vec3(0, 3, 0));
+        const bodyShape =  new CANNON.Box(new CANNON.Vec3(bodySize.x/2, bodySize.y/2, bodySize.z/2));
+        body.addShape(bodyShape, new CANNON.Vec3(bodyPosition.x, bodyPosition.y, bodyPosition.z));
 
         /** Neck */
         // Physics Body
-        const neckShape =  new CANNON.Box(new CANNON.Vec3(1, 4, 1));
-        body.addShape(neckShape, new CANNON.Vec3(0, 6, 2));
+        const neckShape =  new CANNON.Box(new CANNON.Vec3(neckSize.x/2, neckSize.y/2, neckSize.z/2));
+        body.addShape(neckShape, new CANNON.Vec3(neckPosition.x, neckPosition.y, neckPosition.z));
 
         /** Head */
         // Physics Body
-        const headShape =  new CANNON.Box(new CANNON.Vec3(1.5, 1.5, 2));
-        body.addShape(headShape, new CANNON.Vec3(0, 8, 2.5));
+        const headShape =  new CANNON.Box(new CANNON.Vec3(headSize.x/2, headSize.y/2, headSize.z/2));
+        body.addShape(headShape, new CANNON.Vec3(headPosition.x, headPosition.y, headPosition.z));
 
 
         /** Legs */
@@ -96,34 +111,35 @@ export function createGiraffe(world, scene){
         const legsShapes = [];
 
         for (let index = 0; index < 4; index++) {
-            legsShapes.push(new CANNON.Box(new CANNON.Vec3(1.5, 1.5, 2)));
+            legsShapes.push(new CANNON.Box(new CANNON.Vec3(legSize.x/2, legSize.y/2, legSize.z/2)));
         }
 
-        body.addShape(legsShapes[0], new CANNON.Vec3(0.75, 0.25, 2));
-        body.addShape(legsShapes[1], new CANNON.Vec3(-0.75, 0.25, 2));
-        body.addShape(legsShapes[2], new CANNON.Vec3(0.75, 0.25, -2));
-        body.addShape(legsShapes[3], new CANNON.Vec3(-0.75, 0.25, -2));
+        body.addShape(legsShapes[0], new CANNON.Vec3(legPositions[0].x, legPositions[0].y, legPositions[0].z));
+        body.addShape(legsShapes[1], new CANNON.Vec3(legPositions[1].x, legPositions[1].y, legPositions[1].z));
+        body.addShape(legsShapes[2], new CANNON.Vec3(legPositions[2].x, legPositions[2].y, legPositions[2].z));
+        body.addShape(legsShapes[3], new CANNON.Vec3(legPositions[3].x, legPositions[3].y, legPositions[3].z));
 
         return body;
     }
 
-
-
+    const update = () => {
+        _gameObject.update();
+    }
 
     const init = () => {
-        console.log('giraffe');
-
+        
         const properties = {
             mesh: createMesh(),
             body: createBody(),
         }
-
+        
         _gameObject = new customGameObject(world, scene, properties);
+        _gameObject.Name = 'Giraffe';
     }
 
     init();
 
     return {
-
+        update,
     }
 }
