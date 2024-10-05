@@ -5,18 +5,6 @@ import { customGameObject } from './gameObject'
 export function createGiraffe(world, scene){
     let _gameObject;
 
-
-    /**
-     * TODO: 
-     *      - The mesh and body aren't aligned. It's something to do with using the customGameObject, because they seemed 
-     *             to be aligned before using that. Maybe it's the mesh group and body objects? maybe they're not aligned?
-     *              Maybe the body is just a quarter turn out of sync? Maybe cannon x is threejs z?
-     *      - Take all the size and position values and make them constant variables so they're not duplicated for both mesh 
-     *          and body.
-     *  
-     * 
-     */
-
     const bodySize = {x:2.5, y:2.5, z:5};
     const bodyPosition = {x:0, y:4, z:0};
 

@@ -5,7 +5,7 @@ import * as CANNON from 'cannon-es'
 import {  boxObject, sphereObject } from './gameObject'
 import { createGiraffe } from './giraffe'
 import CannonDebugger from 'cannon-es-debugger'
-
+import { spearObject } from './spearObject'
 
 
 /**
@@ -56,9 +56,9 @@ function fireSphere(){
 function fireBox(){
     
     const boxProperties = {
-        width: 0.5, 
-        depth: 1.5,
-        height: 0.5,
+        width: 0.1, 
+        depth: 2.5,
+        height: 0.1,
         position: camera.position,
         quaternion: camera.quaternion,
     };
@@ -72,10 +72,53 @@ function fireBox(){
     // TODO: Scale the 0.004 down as the 1500 (above) goes up
     box.Body.applyForce(
         velocity,
-        new CANNON.Vec3(0, 0.004, 0)
+        new CANNON.Vec3(0, 0.003, 0)
     )
 
     objectsToUpdate.push(box);
+}
+
+function fireSpear(){
+    // const quaternion = new THREE.Quaternion(0, 0, 0, 0); 
+    // quaternion.setFromAxisAngle( new THREE.Vector3(camera.rotation.x, camera.rotation.y, camera.rotation.z), Math.PI );
+//      const quaternion = new THREE.Quaternion().identity();
+//    const test = quaternion.rotateTowards(floor.quaternion, Math.PI/2);
+//     console.log(test)
+    // const quaternion = new THREE.Quaternion().identity();
+    // quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 1).normalize(), Math.PI/2)
+    
+
+
+    const spearProperties = {
+        mass: 1,
+        radiusTop: 0.05,
+        radiusBottom: 0.05,
+        height: 2,
+        radialSegments: 10,
+        position: camera.position,
+    };
+
+    
+
+    const spear = new spearObject(world, scene, spearProperties);
+    // box.Body.rot
+
+    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
+    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
+    const direction = B.sub(A).normalize();
+    const velocity =  direction.multiplyScalar(1500);
+
+    spear.Mesh.lookAt(direction);
+    spear.Mesh.rotateX(Math.PI/2);
+    spear.Body.quaternion.copy(spear.Mesh.quaternion);
+
+    // TODO: Scale the 0.004 down as the 1500 (above) goes up
+    spear.Body.applyForce(
+        velocity,
+        new CANNON.Vec3(0, 0.004, 0)
+    )
+
+    objectsToUpdate.push(spear);
 }
 
 debugObject.reset = () =>{
@@ -230,8 +273,8 @@ world.addBody(floorBody);
  */
 
 
-const giraffe = new createGiraffe(world, scene);
-objectsToUpdate.push(giraffe)
+// const giraffe = new createGiraffe(world, scene);
+// objectsToUpdate.push(giraffe)
 
 
 
@@ -293,11 +336,18 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+
+
+
+
+
+
 // TODO: This is on mouse up for now because the orbit controls require mouse down to move/aim
 window.addEventListener('mouseup', (e) =>{
     if(e.button == 0 ){
-        fireBox();
+        // fireBox();
         // fireSphere();
+        fireSpear();
     }
 })
 
@@ -336,6 +386,12 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 //   });
 
 
+const axesHelper = new THREE.AxesHelper( 10 ); 
+scene.add( axesHelper );
+
+
+
+
 /**
  * Animate
  */
@@ -348,8 +404,6 @@ const tick = () =>
     const deltaTime = elapsedTime - prevTime;
     prevTime = elapsedTime;
 
-    
-    // cannonDebugger.update();
 
     for (let index = 0; index < objectsToUpdate.length; index++) {
         const gameObject = objectsToUpdate[index];
