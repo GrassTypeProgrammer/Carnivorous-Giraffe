@@ -80,38 +80,29 @@ function fireBox(){
 }
 
 function fireSpear(){
-    // const quaternion = new THREE.Quaternion(0, 0, 0, 0); 
-    // quaternion.setFromAxisAngle( new THREE.Vector3(camera.rotation.x, camera.rotation.y, camera.rotation.z), Math.PI );
-//      const quaternion = new THREE.Quaternion().identity();
-//    const test = quaternion.rotateTowards(floor.quaternion, Math.PI/2);
-//     console.log(test)
-    // const quaternion = new THREE.Quaternion().identity();
-    // quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 1).normalize(), Math.PI/2)
-    
-
-
     const spearProperties = {
         mass: 1,
         radiusTop: 0.05,
         radiusBottom: 0.05,
         height: 2,
         radialSegments: 10,
-        position: camera.position,
     };
 
-    
-
+    // TODO: Move this into the spear Object class as a 'fire' function. send in a power paramater
     const spear = new spearObject(world, scene, spearProperties);
-    // box.Body.rot
 
-    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
-    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
-    const direction = B.sub(A).normalize();
-    const velocity =  direction.multiplyScalar(1500);
+    const A = new THREE.Vector3().copy(camera.position);
+    let direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
 
-    spear.Mesh.lookAt(direction);
-    spear.Mesh.rotateX(Math.PI/2);
+    const B = new THREE.Vector3().copy(A).add(direction);
+    spear.Mesh.position.copy(A);
+    spear.Body.position.copy(A);
+    spear.Mesh.lookAt(new THREE.Vector3().copy(B));
+    spear.Mesh.rotateX(Math.PI / 2)
     spear.Body.quaternion.copy(spear.Mesh.quaternion);
+   
+    const velocity =  direction.multiplyScalar(1500);
 
     // TODO: Scale the 0.004 down as the 1500 (above) goes up
     spear.Body.applyForce(
