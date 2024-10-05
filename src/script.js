@@ -6,7 +6,8 @@ import {  boxObject, sphereObject } from './gameObject'
 import { createGiraffe } from './giraffe'
 import CannonDebugger from 'cannon-es-debugger'
 import { spearObject } from './spearObject'
-
+import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
+import { fpsControls } from './fpsControls'
 
 /**
  * Debug
@@ -273,8 +274,8 @@ world.addBody(floorBody);
  */
 
 
-// const giraffe = new createGiraffe(world, scene);
-// objectsToUpdate.push(giraffe)
+const giraffe = new createGiraffe(world, scene);
+objectsToUpdate.push(giraffe)
 
 
 
@@ -361,10 +362,14 @@ camera.position.set(- 3, 3, 3)
 scene.add(camera)
 
 // Controls
-const controls = new OrbitControls(camera, canvas)
-controls.target = new THREE.Vector3(0, 3, 0);
-controls.enableDamping = true
+// const controls = new OrbitControls(camera, canvas)
+// controls.target = new THREE.Vector3(0, 3, 0);
+// controls.enableDamping = true
 
+// const controls = new FirstPersonControls(camera, canvas);
+// controls.autoForward = true;
+
+const controls = new fpsControls(camera, canvas, gui)
 /**
  * Renderer
  */
@@ -429,9 +434,11 @@ const tick = () =>
     const fixedTimeStep = 1/60; // 60fps
     world.step(fixedTimeStep, deltaTime, 3)
 
+    // console.log(camera.position)
 
     // Update controls
-    controls.update()
+    // controls.update()
+    controls.onUpdate(deltaTime)
 
     // Render
     renderer.render(scene, camera)
