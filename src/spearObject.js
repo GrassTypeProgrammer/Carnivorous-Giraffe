@@ -11,7 +11,7 @@ import { gameObject } from './gameObject';
 export function spearObject(world, scene, properties){
     const _gameObject = new gameObject(world, scene);
     _gameObject.Name = 'spearObject';
-
+    let _collided = false;
 
     const init = () => {
         // Make material
@@ -48,7 +48,26 @@ export function spearObject(world, scene, properties){
             material: properties.physicsMaterial,
         });
         //  this._body.addEventListener('collide', playHitSound)
+        _gameObject.Body.addEventListener('collide', onCollision);
          world.addBody(_gameObject.Body);
+    }
+
+    const onCollision = (collision) => {
+        if(_collided){
+            return;
+        }
+        
+        _collided = true;
+        const object = collision.body.parent;
+        
+        if(object != undefined && object.Name == 'Giraffe'){
+            //TODO: try to get the spear to hang here with a constraint
+            _gameObject.Body.mass = 0;
+            _gameObject.Body.type = CANNON.BODY_TYPES.STATIC;
+            // _gameObject.Body.velocity.copy(new THREE.Vector3(0, 0, 0));
+            // _gameObject.Body.angularVelocity.copy(new THREE.Vector3(0, 0, 0));
+            object.damage();
+        }
     }
 
     init();

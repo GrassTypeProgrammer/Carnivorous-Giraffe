@@ -114,6 +114,11 @@ export function createGiraffe(world, scene){
         _gameObject.update();
     }
 
+    const damage = () => {
+        console.log('hit');
+    }
+
+
     const init = () => {
         
         const properties = {
@@ -123,11 +128,18 @@ export function createGiraffe(world, scene){
         
         _gameObject = new customGameObject(world, scene, properties);
         _gameObject.Name = 'Giraffe';
+        _gameObject.Body.addEventListener('collide', onCollision)
+
+        // TODO: Make an entity factory function that giraffe will inherit from. That will contain the damage function
+        _gameObject.Body.parent = _gameObject;
+        _gameObject.damage = damage;
     }
+
 
     init();
 
     return {
         update,
+        damage,
     }
 }
