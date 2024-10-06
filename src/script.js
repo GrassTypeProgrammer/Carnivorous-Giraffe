@@ -379,13 +379,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  * Debugger
  */
 
-const cannonDebugger = new CannonDebugger(scene, world, {
-    // options...
-  });
+// const cannonDebugger = new CannonDebugger(scene, world, {
+//     // options...
+//   });
 
 
-const axesHelper = new THREE.AxesHelper( 10 ); 
-scene.add( axesHelper );
+// const axesHelper = new THREE.AxesHelper( 10 ); 
+// scene.add( axesHelper );
 
 
 
@@ -402,7 +402,7 @@ const tick = () =>
     const deltaTime = elapsedTime - prevTime;
     prevTime = elapsedTime;
 
-    cannonDebugger.update();
+    // cannonDebugger.update();
 
     for (let index = 0; index < objectsToUpdate.length; index++) {
         const gameObject = objectsToUpdate[index];
