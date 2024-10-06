@@ -233,6 +233,8 @@ world.defaultContactMaterial = defaultContactMaterial;
 // Floor
 const floorShape = new CANNON.Plane();
 const floorBody = new CANNON.Body();
+floorBody.Name = 'Floor';
+
 // floorBody.material = concreteMaterial;
 
 // if mass is 0, it means it is static. Mass is 0 by default, so you don't have to specify this.
@@ -285,7 +287,7 @@ const floor = new THREE.Mesh(
     })
 )
 floor.receiveShadow = true
-floor.rotation.x = - Math.PI * 0.5
+floor.rotation.x = - Math.PI * 0.5;
 scene.add(floor)
 
 /**
