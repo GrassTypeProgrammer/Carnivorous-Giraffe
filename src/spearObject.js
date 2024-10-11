@@ -70,7 +70,7 @@ export function spearObject(world, scene, properties){
             if(object.Name == 'Giraffe'){
                 // _gameObject.Body.velocity.copy(new THREE.Vector3(0, 0, 0));
                 // _gameObject.Body.angularVelocity.copy(new THREE.Vector3(0, 0, 0));
-                object.damage();
+                object.damage(10);
             }
         }
     }

@@ -1,9 +1,11 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { customGameObject } from './gameObject'
+import { createEntity } from './entity';
 
 export function createGiraffe(world, scene){
     let _gameObject;
+    let _entity;
 
     const bodySize = {x:2.5, y:2.5, z:5};
     const bodyPosition = {x:0, y:4, z:0};
@@ -114,11 +116,6 @@ export function createGiraffe(world, scene){
         _gameObject.update();
     }
 
-    const damage = () => {
-        console.log('hit');
-    }
-
-
     const init = () => {
         
         const properties = {
@@ -131,14 +128,16 @@ export function createGiraffe(world, scene){
 
         // TODO: Make an entity factory function that giraffe will inherit from. That will contain the damage function
         _gameObject.Body.parent = _gameObject;
-        _gameObject.damage = damage;
+        _entity = new createEntity();
+        _entity.init();
+        _gameObject.damage = _entity.damage;
     }
 
 
     init();
 
-    return {
+    return Object.assign({}, _entity, {
         update,
         damage,
-    }
+    })
 }
