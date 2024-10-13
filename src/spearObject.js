@@ -12,6 +12,7 @@ import { ObjectTag } from './objectConfig';
 export function spearObject(world, scene, properties){
     const _tag = ObjectTag.SPEAR;
     const _gameObject = new gameObject(world, scene);
+    _gameObject.Tag = _tag
     _gameObject.Name = 'Spear';
     let _collided = false;
 
@@ -62,12 +63,11 @@ export function spearObject(world, scene, properties){
         
         _collided = true;
         const object = collision.body.parent ? collision.body.parent: collision.body;
-        
-        // TODO: Don't detect object using name, set up a type system with enums or something similar
         if(object != undefined && object.Tag != ObjectTag.SPEAR){
             _gameObject.Body.mass = 0;
             _gameObject.Body.type = CANNON.BODY_TYPES.STATIC;
            
+            //TODO: try to get the spear to hang here with a constraint
             if(object.Tag == ObjectTag.GIRAFFE){
                 // _gameObject.Body.velocity.copy(new THREE.Vector3(0, 0, 0));
                 // _gameObject.Body.angularVelocity.copy(new THREE.Vector3(0, 0, 0));
