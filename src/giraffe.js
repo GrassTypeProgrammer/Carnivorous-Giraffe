@@ -85,6 +85,7 @@ export function createGiraffe(world, scene){
     const createBody = () => {
         const body = new CANNON.Body({
             mass: 0,
+            type: CANNON.BODY_TYPES.KINEMATIC
         });
 
         /** Body */
@@ -126,10 +127,14 @@ export function createGiraffe(world, scene){
 
     const movement = () =>{
         if(_target){
+            // TODO make this take the current position of the target, the lerp towards that position. You can add in the 
+            //      ease in/out functions or whatever to make it feel more like a lurch/charge.
+            //      You may end up using the greensock libary.
             let direction = new THREE.Vector3().copy(_target.position).sub(_gameObject.Body.position).normalize();
             direction.y = 0;
             const velocity = new THREE.Vector3().copy(direction).multiplyScalar(_speed);
-            _gameObject.Body.position = new THREE.Vector3().copy(_gameObject.Body.position).add(velocity);
+            const newPos = new THREE.Vector3().copy(_gameObject.Body.position).add(velocity);
+            _gameObject.Body.position.set(newPos.x, newPos.y, newPos.z);
         }
     }
 
