@@ -2,8 +2,10 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import { customGameObject } from './gameObject'
 import { createEntity } from './entity';
+import { ObjectTag } from './objectConfig';
 
 export function createGiraffe(world, scene){
+    const _tag = ObjectTag.GIRAFFE;
     let _gameObject;
     let _entity;
 
@@ -131,13 +133,16 @@ export function createGiraffe(world, scene){
         _entity = new createEntity();
         _entity.init();
         _gameObject.damage = _entity.damage;
+        
+        _gameObject.Tag = _tag;
+        _entity.Tag = _tag;
     }
-
 
     init();
 
     return Object.assign({}, _entity, {
         update,
-        damage,
+        get Tag() {return _tag},
+        set Tag(value) {_tag = value},
     })
 }

@@ -4,13 +4,10 @@ import * as CANNON from 'cannon-es'
 // TODO Create a gameObjectManager that you can pass the world and scene into. That can handle all of the adding/updating.
 //      you would also create objects via that.
 
-// TODO have a base 'class' that these can inherit from, so that you have base game object, then sphere and cube game objects, 
-//      rather than having them as one factory function 
-
-
 
 
 export function gameObject(world, scene){
+    const _isGameObject = true;
     let _name = 'gameObject';
     let _mesh;
     let _body;
@@ -53,6 +50,7 @@ export function gameObject(world, scene){
         set Mesh(mesh){ _mesh = mesh},
         get Body() { return _body},
         set Body(body){ _body = body},
+        get IsGameObject(){return _isGameObject},
     };
     
 }
