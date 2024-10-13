@@ -9,6 +9,11 @@ export function createGiraffe(world, scene){
     let _gameObject;
     let _entity;
 
+    // AI variables
+    let _target;
+    const _speed = 0.01;
+
+    // Body/Mesh variables
     const bodySize = {x:2.5, y:2.5, z:5};
     const bodyPosition = {x:0, y:4, z:0};
 
@@ -115,7 +120,17 @@ export function createGiraffe(world, scene){
     }
 
     const update = () => {
+        movement();
         _gameObject.update();
+    }
+
+    const movement = () =>{
+        if(_target){
+            let direction = new THREE.Vector3().copy(_target.position).sub(_gameObject.Body.position).normalize();
+            direction.y = 0;
+            const velocity = new THREE.Vector3().copy(direction).multiplyScalar(_speed);
+            _gameObject.Body.position = new THREE.Vector3().copy(_gameObject.Body.position).add(velocity);
+        }
     }
 
     const init = () => {
@@ -138,11 +153,18 @@ export function createGiraffe(world, scene){
         _entity.Tag = _tag;
     }
 
-    init();
+    // Getters/Setters
+    const getTarget = () => {return _target}
+    const setTarget = (value) => {_target = value}
 
+
+    init();
+    
     return Object.assign({}, _entity, {
         update,
         get Tag() {return _tag},
         set Tag(value) {_tag = value},
+        getTarget, 
+        setTarget,
     })
 }

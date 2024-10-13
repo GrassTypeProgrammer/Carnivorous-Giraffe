@@ -263,34 +263,6 @@ world.addBody(floorBody);
  */
 
 /**
- * Objects
- */
-
-
-const giraffe = new createGiraffe(world, scene);
-objectsToUpdate.push(giraffe)
-
-
-
-
-/**
- * Floor
- */
-const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(30, 30),
-    new THREE.MeshStandardMaterial({
-        color: '#777777',
-        metalness: 0.3,
-        roughness: 0.4,
-        envMap: environmentMapTexture,
-        envMapIntensity: 0.5
-    })
-)
-floor.receiveShadow = true
-floor.rotation.x = - Math.PI * 0.5;
-scene.add(floor)
-
-/**
  * Lights
  */
 const ambientLight = new THREE.AmbientLight(0xffffff, 2.1)
@@ -351,7 +323,7 @@ window.addEventListener('mouseup', (e) =>{
 // Base camera
 const cameraFar = 100;
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, cameraFar)
-camera.position.set(- 3, 3, 3)
+camera.position.set(1, 3, 11)
 scene.add(camera)
 
 // Controls
@@ -386,6 +358,38 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 // const axesHelper = new THREE.AxesHelper( 10 ); 
 // scene.add( axesHelper );
+
+
+
+
+/**
+ * Objects
+ */
+
+
+const giraffe = new createGiraffe(world, scene);
+giraffe.setTarget(camera);
+objectsToUpdate.push(giraffe)
+
+
+
+
+/**
+ * Floor
+ */
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 30),
+    new THREE.MeshStandardMaterial({
+        color: '#777777',
+        metalness: 0.3,
+        roughness: 0.4,
+        envMap: environmentMapTexture,
+        envMapIntensity: 0.5
+    })
+)
+floor.receiveShadow = true
+floor.rotation.x = - Math.PI * 0.5;
+scene.add(floor)
 
 
 
