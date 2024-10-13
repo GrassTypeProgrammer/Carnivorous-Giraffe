@@ -76,11 +76,37 @@ export function spearObject(world, scene, properties){
         }
     }
 
+    const throwSpear = (origin, direction, power) => {
+        const pointInFront = new THREE.Vector3().copy(origin).add(direction);
+        _gameObject.Mesh.position.copy(origin);
+        _gameObject.Body.position.copy(origin);
+        _gameObject.Mesh.lookAt(new THREE.Vector3().copy(pointInFront));
+        _gameObject.Mesh.rotateX(Math.PI / 2)
+        _gameObject.Body.quaternion.copy(_gameObject.Mesh.quaternion);
+       
+        const velocity =  direction.multiplyScalar(power);
+    
+        // TODO: Scale the 0.004 down as the 1500 (above) goes up
+        _gameObject.Body.applyForce(
+            velocity,
+            // I think the lowest y value can be 0.004 and the highest power can be 2000.
+            // The lowest power can be 500 and the highest y value 0.03. 
+            // I don't know if this scales linearly or exponentially, so see if you can figure out a good formula for it.
+            //      Start simple
+            // 0.004 : 1500
+            // 0.012 : 1000
+            // 0.030 : 500
+            new CANNON.Vec3(0, 0.004, 0)
+        )
+
+    }
+
     init();
 
     return Object.assign({}, _gameObject, {
         get Tag() {return _tag},
         set Tag(value) {_tag = value},
+        throwSpear,
     });
 }
 

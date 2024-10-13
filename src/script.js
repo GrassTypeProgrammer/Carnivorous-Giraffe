@@ -15,69 +15,6 @@ import { fpsControls } from './fpsControls'
 const gui = new GUI()
 const debugObject = {};
 
-// debugObject.createSphere = () =>{
-//     fireSphere();
-// }
-
-// debugObject.createBox = () => {
-//     fireBox();
-//     // createBox(
-//     //     Math.random(),
-//     //     Math.random(), 
-//     //     Math.random(),
-//     //     {
-//     //         x: (Math.random() - 0.5) * 3,
-//     //         y: 3,
-//     //         z: (Math.random() - 0.5) * 3,
-//     //     }
-//     // )
-// }
-
-function fireSphere(){
-    const sphereProperties = {
-        position: camera.position,
-        radius: 0.5,
-    }
-    const sphere = new sphereObject(world, scene, sphereProperties);
-
-    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
-    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
-    const direction = B.sub(A).normalize();
-    direction.multiplyScalar(1000);
-
-    sphere.Body.applyForce(
-        direction,
-        sphere.Body.position,
-        )
-
-    objectsToUpdate.push(sphere);
-}
-
-
-function fireBox(){
-    
-    const boxProperties = {
-        width: 0.1, 
-        depth: 2.5,
-        height: 0.1,
-        position: camera.position,
-        quaternion: camera.quaternion,
-    };
-    const box = new boxObject(world, scene, boxProperties);
-    
-    const A = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z);
-    const B = new THREE.Vector3(controls.target.x, controls.target.y, controls.target.z);
-    const direction = B.sub(A).normalize();
-    const velocity =  direction.multiplyScalar(1500);
-
-    // TODO: Scale the 0.004 down as the 1500 (above) goes up
-    box.Body.applyForce(
-        velocity,
-        new CANNON.Vec3(0, 0.003, 0)
-    )
-
-    objectsToUpdate.push(box);
-}
 
 function fireSpear(){
     const spearProperties = {
@@ -88,27 +25,12 @@ function fireSpear(){
         radialSegments: 10,
     };
 
-    // TODO: Move this into the spear Object class as a 'fire' function. send in a power paramater
     const spear = new spearObject(world, scene, spearProperties);
 
-    const A = new THREE.Vector3().copy(camera.position);
+    const origin = new THREE.Vector3().copy(camera.position);
     let direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-
-    const B = new THREE.Vector3().copy(A).add(direction);
-    spear.Mesh.position.copy(A);
-    spear.Body.position.copy(A);
-    spear.Mesh.lookAt(new THREE.Vector3().copy(B));
-    spear.Mesh.rotateX(Math.PI / 2)
-    spear.Body.quaternion.copy(spear.Mesh.quaternion);
-   
-    const velocity =  direction.multiplyScalar(1500);
-
-    // TODO: Scale the 0.004 down as the 1500 (above) goes up
-    spear.Body.applyForce(
-        velocity,
-        new CANNON.Vec3(0, 0.004, 0)
-    )
+    spear.throwSpear(origin, direction, 1500);
 
     objectsToUpdate.push(spear);
 }
