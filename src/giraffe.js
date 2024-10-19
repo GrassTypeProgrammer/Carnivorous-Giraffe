@@ -8,6 +8,7 @@ export function createGiraffe(world, scene){
     const _tag = ObjectTag.GIRAFFE;
     let _gameObject;
     let _entity;
+    const _spears = [];
 
     // AI variables
     let _target;
@@ -122,6 +123,7 @@ export function createGiraffe(world, scene){
 
     const update = () => {
         movement();
+        rotate();
         _gameObject.update();
     }
 
@@ -136,6 +138,41 @@ export function createGiraffe(world, scene){
             const newPos = new THREE.Vector3().copy(_gameObject.Body.position).add(velocity);
             _gameObject.Body.position.set(newPos.x, newPos.y, newPos.z);
         }
+    }
+
+    const rotate = () =>{
+        if(_target){
+            const angle = (Math.PI / 180) * 0.1;
+            const current = _gameObject.Body.quaternion;
+            const rot = new CANNON.Quaternion();
+            rot.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), angle);
+            current.mult(rot, current);
+            _gameObject.Body.quaternion.copy(current);
+        }
+    }
+
+    const addSpearToGiraffe = (spearMesh, position, quaternion) => {
+        _spears.push(spearMesh);
+        _gameObject.Mesh.add(spearMesh);
+        
+        // position
+        const localPosition = _gameObject.Mesh.worldToLocal(position);
+        spearMesh.position.set(localPosition.x, localPosition.y, localPosition.z);
+
+        // rotation 
+        // (converting a world quaternion to local space)
+        // The world quaternion that we want in local space
+        const worldQuaternion = quaternion;
+        // Get the inverse of the parent's quaternion
+        const inverseLocalQuaternion = new THREE.Quaternion().copy(_gameObject.Mesh.quaternion).invert();
+
+        /**  
+         * Multiplying two quaternions has the same effect that adding two vectors together has. 
+         * By multiplying the target quaternion by the parent's inverse quaternion, you're removing the parent's rotation 
+         *      from the equation. This allows the child's local rotation to be the same as the target (world) quaternion.
+         */
+        const localQuaternion = new THREE.Quaternion().multiplyQuaternions(inverseLocalQuaternion, worldQuaternion);
+        spearMesh.quaternion.copy(localQuaternion);
     }
 
     const init = () => {
@@ -153,7 +190,8 @@ export function createGiraffe(world, scene){
         _entity = new createEntity();
         _entity.init();
         _gameObject.damage = _entity.damage;
-        
+        _gameObject.addSpearToGiraffe = addSpearToGiraffe;
+
         _gameObject.Tag = _tag;
         _entity.Tag = _tag;
     }
@@ -171,5 +209,6 @@ export function createGiraffe(world, scene){
         set Tag(value) {_tag = value},
         getTarget, 
         setTarget,
+        addSpearToGiraffe,
     })
 }

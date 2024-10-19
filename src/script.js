@@ -336,7 +336,9 @@ const tick = () =>
 
 
         // remove objects when too far from the camera
-        if(gameObject.Mesh && gameObject.Mesh.position.distanceTo(camera.position) > cameraFar){
+        if((gameObject.Mesh && gameObject.Mesh.position.distanceTo(camera.position) > cameraFar) || 
+        // TODO: Remove marked for delete from here when you have it in the object manager class
+            (gameObject.MarkedForDelete != undefined && gameObject.MarkedForDelete())){
             gameObject.destroy();
             objectsToUpdate.splice(index, 1);
             index--;

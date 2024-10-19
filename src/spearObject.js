@@ -15,6 +15,7 @@ export function spearObject(world, scene, properties){
     _gameObject.Tag = _tag
     _gameObject.Name = 'Spear';
     let _collided = false;
+    let _markedForDelete = false;
 
     const init = () => {
         // Make material
@@ -53,7 +54,7 @@ export function spearObject(world, scene, properties){
         //  this._body.addEventListener('collide', playHitSound)
         _gameObject.Body.addEventListener('collide', onCollision);
         _gameObject.Body.parent = _gameObject;
-         world.addBody(_gameObject.Body);
+        world.addBody(_gameObject.Body);
     }
 
     const onCollision = (collision) => {
@@ -72,6 +73,11 @@ export function spearObject(world, scene, properties){
                 // _gameObject.Body.velocity.copy(new THREE.Vector3(0, 0, 0));
                 // _gameObject.Body.angularVelocity.copy(new THREE.Vector3(0, 0, 0));
                 object.damage(10);
+                const newMesh = new THREE.Mesh(_gameObject.Mesh.geometry, _gameObject.Mesh.material)
+                let worldQuaternion = new THREE.Quaternion();
+                _gameObject.Mesh.getWorldQuaternion(worldQuaternion);
+                object.addSpearToGiraffe(newMesh, _gameObject.Mesh.position, worldQuaternion);
+                _markedForDelete = true;
             }
         }
     }
@@ -101,12 +107,17 @@ export function spearObject(world, scene, properties){
 
     }
 
+    const MarkedForDelete = () =>{
+        return _markedForDelete;
+    }
+
     init();
 
     return Object.assign({}, _gameObject, {
         get Tag() {return _tag},
         set Tag(value) {_tag = value},
         throwSpear,
+        MarkedForDelete,
     });
 }
 
