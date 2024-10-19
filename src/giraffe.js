@@ -122,7 +122,7 @@ export function createGiraffe(world, scene){
     }
 
     const update = () => {
-        movement();
+        // movement();
         rotate();
         _gameObject.update();
     }
@@ -202,8 +202,10 @@ export function createGiraffe(world, scene){
 
 
     init();
+
+    const object = Object.assign({}, _entity, _gameObject);
     
-    return Object.assign({}, _entity, {
+    return Object.assign({}, object, {
         update,
         get Tag() {return _tag},
         set Tag(value) {_tag = value},

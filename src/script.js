@@ -257,6 +257,8 @@ scene.add(camera)
 // controls.autoForward = true;
 
 const controls = new fpsControls(camera, canvas, gui)
+
+
 /**
  * Renderer
  */
@@ -293,6 +295,7 @@ const giraffe = new createGiraffe(world, scene);
 giraffe.setTarget(camera);
 objectsToUpdate.push(giraffe)
 
+controls.setTarget(giraffe);
 
 
 

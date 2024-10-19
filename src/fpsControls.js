@@ -16,7 +16,8 @@ export function fpsControls(camera, canvas, gui){
         allowJump: false,
         jumpPower: 350,
         mass: 100,
-        gravity: 9.8
+        gravity: 9.8,
+        straffeSpeed: 10,
     }
 
  // tells the code if the controller is on the ground, thus able to jump
@@ -29,6 +30,7 @@ export function fpsControls(camera, canvas, gui){
     let moveRight = false;
     const velocity = new THREE.Vector3();
     const direction = new THREE.Vector3();
+    let _target;
 
     const onKeyDown = function ( event ) {
 
@@ -110,14 +112,14 @@ export function fpsControls(camera, canvas, gui){
         velocity.y -= debugObject.allowJump ? debugObject.gravity * debugObject.mass * deltaTime : 0; 
     
         direction.z = Number( moveForward ) - Number( moveBackward );
-        direction.x = Number( moveRight ) - Number( moveLeft );
         direction.normalize(); // this ensures consistent movements in all directions
     
         if ( moveForward || moveBackward ) 
             velocity.z -= direction.z * debugObject.mass * deltaTime;
        
-        if ( moveLeft || moveRight ) 
-            velocity.x -= direction.x * debugObject.mass * deltaTime;
+        if ( moveLeft || moveRight ) {
+            calculateSideDirection(deltaTime);
+        }
 
         if ( onObject === true && debugObject.allowJump) {
             velocity.y = Math.max( 0, velocity.y );
@@ -133,8 +135,25 @@ export function fpsControls(camera, canvas, gui){
             controls.getObject().position.y = 2;
             canJump = true;
         }
-    
+    }
+
+    function calculateSideDirection(deltaTime){
+        const directionModifier = Number( moveLeft ) - Number( moveRight );
         
+        // amount of movement that will occur
+        const angle = Math.PI / 180 * directionModifier * deltaTime * debugObject.straffeSpeed;
+        const cameraPos = controls.getObject().position.clone();
+        const targetPos = _target.Body.position.clone();
+        const relativePos = new THREE.Vector3().copy(cameraPos).sub(targetPos);
+        
+        // using standard formula to figure out 2D rotation around an object
+        const newPos = new THREE.Vector3(
+            relativePos.x * Math.cos(angle) - relativePos.z * Math.sin(angle),
+            cameraPos.y,
+            relativePos.x * Math.sin(angle) + relativePos.z * Math.cos(angle),
+        );
+
+        controls.getObject().position.set(newPos.x, newPos.y, newPos.z);
     }
 
 
@@ -144,10 +163,17 @@ export function fpsControls(camera, canvas, gui){
     controlsGui.add(debugObject, 'jumpPower').min(0).max(500).step(1);
     controlsGui.add(debugObject, 'mass').min(0).max(200).step(1);
     controlsGui.add(debugObject, 'gravity').min(0).max(20).step(1);
+    controlsGui.add(debugObject, 'straffeSpeed').min(0).max(20).step(1);
 
+
+     // Getters/Setters
+     const getTarget = () => {return _target}
+     const setTarget = (value) => {_target = value}
 
     return{
         controls,
-        onUpdate
+        onUpdate,
+        getTarget,
+        setTarget
     }
 }
