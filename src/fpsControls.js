@@ -3,7 +3,7 @@ import {  PointerLockControls } from 'three/examples/jsm/Addons.js';
 
 
 export function fpsControls(camera, canvas, gui){
-   
+    
     const controls = new PointerLockControls(camera, canvas);
     canvas.addEventListener( 'click', function () {
 
@@ -17,7 +17,7 @@ export function fpsControls(camera, canvas, gui){
         jumpPower: 350,
         mass: 100,
         gravity: 9.8,
-        straffeSpeed: 10,
+        straffeSpeed: 30,
     }
 
  // tells the code if the controller is on the ground, thus able to jump
@@ -31,6 +31,7 @@ export function fpsControls(camera, canvas, gui){
     const velocity = new THREE.Vector3();
     const direction = new THREE.Vector3();
     let _target;
+    let _prevPosition;
 
     const onKeyDown = function ( event ) {
 
@@ -93,12 +94,14 @@ export function fpsControls(camera, canvas, gui){
 
     document.addEventListener( 'keydown', onKeyDown );
     document.addEventListener( 'keyup', onKeyUp );
-
+    
     raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 1 );
 
 
 
     function onUpdate(deltaTime){
+        _prevPosition = controls.getObject().position;
+
         raycaster.ray.origin.copy( controls.getObject().position );
         raycaster.ray.origin.y -= 1;
 
@@ -148,13 +151,47 @@ export function fpsControls(camera, canvas, gui){
         
         // using standard formula to figure out 2D rotation around an object
         const newPos = new THREE.Vector3(
-            relativePos.x * Math.cos(angle) - relativePos.z * Math.sin(angle),
+            relativePos.x * Math.cos(angle) - relativePos.z * Math.sin(angle) + targetPos.x,
             cameraPos.y,
-            relativePos.x * Math.sin(angle) + relativePos.z * Math.cos(angle),
+            relativePos.x * Math.sin(angle) + relativePos.z * Math.cos(angle) + targetPos.z,
         );
 
         controls.getObject().position.set(newPos.x, newPos.y, newPos.z);
+
+
+        // Maintain Y rotation
+        const A = new THREE.Vector3(cameraPos.x, 0, cameraPos.z).sub(new THREE.Vector3(targetPos.x, 0, targetPos.z));
+        const B = new THREE.Vector3(newPos.x, 0, newPos.z).sub(new THREE.Vector3(targetPos.x, 0, targetPos.z));
+        let omega = Math.acos(A.dot(B)/(A.length() * B.length()));
+        
+        controls.getObject().rotation.set(
+            // controls.getObject().rotation.x,
+            0, 
+            controls.getObject().rotation.y -= omega * directionModifier, 
+            // controls.getObject().rotation.z,
+            0,
+        )
+
+        // // Maintain X Rotation
+        // const C = new THREE.Vector3(0, cameraPos.y, cameraPos.z).sub(new THREE.Vector3(0, targetPos.y, targetPos.z));
+        // const D = new THREE.Vector3(0, newPos.y, newPos.z).sub(new THREE.Vector3(0, targetPos.y, targetPos.z));
+        // let beta = Math.acos(C.dot(D)/(C.length() * D.length()));
+        
+        // controls.getObject().rotation.set(
+        //     controls.getObject().rotation.x -= beta * directionModifier, 
+        //     0,
+        //     // controls.getObject().rotation.y -= omega * directionModifier, 
+        //     0,
+        // )
+
+        // imagine a circle. you have prevPos and newPos on the circumference. Then, find the angle at the center 
+        //      of the circle between those two points. 
+        //      calculate the quaternion for that angle (you may need the inverse). subtract from the current quaternion. 
+        //      you need to do this for the x and y axis seperately.
+      
     }
+
+ 
 
 
     // Add debug
@@ -163,7 +200,7 @@ export function fpsControls(camera, canvas, gui){
     controlsGui.add(debugObject, 'jumpPower').min(0).max(500).step(1);
     controlsGui.add(debugObject, 'mass').min(0).max(200).step(1);
     controlsGui.add(debugObject, 'gravity').min(0).max(20).step(1);
-    controlsGui.add(debugObject, 'straffeSpeed').min(0).max(20).step(1);
+    controlsGui.add(debugObject, 'straffeSpeed').min(0).max(30).step(1);
 
 
      // Getters/Setters

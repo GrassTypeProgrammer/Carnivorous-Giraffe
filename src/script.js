@@ -8,6 +8,7 @@ import CannonDebugger from 'cannon-es-debugger'
 import { spearObject } from './spearObject'
 import { FirstPersonControls } from 'three/addons/controls/FirstPersonControls.js';
 import { fpsControls } from './fpsControls'
+import { fpsController } from './fpsController'
 
 /**
  * Debug
@@ -245,7 +246,7 @@ window.addEventListener('mouseup', (e) =>{
 // Base camera
 const cameraFar = 100;
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, cameraFar)
-camera.position.set(1, 3, 11)
+// camera.position.set(1, 3, 11)
 scene.add(camera)
 
 // Controls
@@ -256,8 +257,11 @@ scene.add(camera)
 // const controls = new FirstPersonControls(camera, canvas);
 // controls.autoForward = true;
 
-const controls = new fpsControls(camera, canvas, gui)
+// const controls = new fpsControls(camera, canvas, gui)
 
+const controls = new fpsController(camera, canvas, gui);
+scene.add(controls.getPlayer())
+controls.setPosition(new THREE.Vector3(1, 3, 11))
 
 /**
  * Renderer
@@ -294,9 +298,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 const giraffe = new createGiraffe(world, scene);
 giraffe.setTarget(camera);
 objectsToUpdate.push(giraffe)
-
+giraffe.Body.position.set(0, 0, 1)
 controls.setTarget(giraffe);
-
 
 
 /**
@@ -363,7 +366,7 @@ const tick = () =>
 
     // Update controls
     // controls.update()
-    controls.onUpdate(deltaTime)
+    controls.update(deltaTime)
 
     // Render
     renderer.render(scene, camera)
